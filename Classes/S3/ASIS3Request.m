@@ -46,6 +46,7 @@ static NSString *sharedSecretAccessKey = nil;
 	[dateString release];
 	[accessKey release];
 	[secretAccessKey release];
+	[pregeneratedSignature release];
 	[accessPolicy release];
 	[requestScheme release];
 	[super dealloc];
@@ -123,13 +124,19 @@ static NSString *sharedSecretAccessKey = nil;
 		[self addRequestHeader:header value:[amzHeaders objectForKey:header]];
 	}
 	
-	// Jump through hoops while eating hot food
-	NSString *stringToSign = [self stringToSignForHeaders:canonicalizedAmzHeaders resource:canonicalizedResource];
-	NSString *signature = [ASIHTTPRequest base64forData:[ASIS3Request HMACSHA1withKey:[self secretAccessKey] forString:stringToSign]];
+	NSString *signature;
+	if ([self pregeneratedSignature]) {
+		//FIXME, calling first method as it has side-effect of setting content-type
+		NSString *stringToSign = [self stringToSignForHeaders:canonicalizedAmzHeaders resource:canonicalizedResource];
+		signature = [self pregeneratedSignature];
+	} else {
+		// Jump through hoops while eating hot food
+		NSString *stringToSign = [self stringToSignForHeaders:canonicalizedAmzHeaders resource:canonicalizedResource];
+		signature = [ASIHTTPRequest base64forData:[ASIS3Request HMACSHA1withKey:[self secretAccessKey] forString:stringToSign]];
+	}
+
 	NSString *authorizationString = [NSString stringWithFormat:@"AWS %@:%@",[self accessKey],signature];
 	[self addRequestHeader:@"Authorization" value:authorizationString];
-	
-	
 }
 
 - (void)requestFinished
@@ -305,6 +312,7 @@ static NSString *sharedSecretAccessKey = nil;
 @synthesize dateString;
 @synthesize accessKey;
 @synthesize secretAccessKey;
+@synthesize pregeneratedSignature;
 @synthesize currentXMLElementContent;
 @synthesize currentXMLElementStack;
 @synthesize accessPolicy;

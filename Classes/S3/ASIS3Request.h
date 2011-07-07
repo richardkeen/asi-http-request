@@ -43,6 +43,8 @@ typedef enum _ASIS3ErrorType {
 	
 	// Your S3 secret access key. Set it on the request, or set it globally using [ASIS3Request setSharedSecretAccessKey:]
 	NSString *secretAccessKey;
+
+	NSString *pregeneratedSignature;
 	
 	// Set to ASIS3RequestSchemeHTTPS to send your requests via HTTPS (default is ASIS3RequestSchemeHTTP)
 	NSString *requestScheme;
@@ -102,6 +104,7 @@ typedef enum _ASIS3ErrorType {
 @property (retain) NSString *dateString;
 @property (retain) NSString *accessKey;
 @property (retain) NSString *secretAccessKey;
+@property (retain) NSString *pregeneratedSignature;
 @property (retain) NSString *accessPolicy;
 @property (retain) NSString *currentXMLElementContent;
 @property (retain) NSMutableArray *currentXMLElementStack;
